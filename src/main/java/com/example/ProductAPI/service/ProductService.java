@@ -5,13 +5,11 @@ import com.example.ProductAPI.repository.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestTemplate;
-import java.io.*;
 
 @Service
 public class ProductService {
@@ -33,6 +31,35 @@ public class ProductService {
         return new ResponseEntity<>("User does not exit",HttpStatus.BAD_REQUEST);
     }
 
+    public ResponseEntity<Object> getProduct(int id){
+
+        var response=productRepository.findById(id);
+
+        if (response.isPresent())
+            return new ResponseEntity<>( response, HttpStatus.OK);
+        return new ResponseEntity<>( "Product does not exist", HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<Object> getAllProducts(){
+
+        var response=productRepository.findAll();
+
+
+
+        if (!response.isEmpty())
+            return new ResponseEntity<>( response, HttpStatus.OK);
+        return new ResponseEntity<>( "users empty ", HttpStatus.BAD_REQUEST);
+    }
+
+    public ResponseEntity<Object> getProductByUserId(int userId){
+
+        var response=productRepository.findByUserId(userId);
+
+        if (!response.isEmpty())
+            return new ResponseEntity<>( response, HttpStatus.OK);
+        return new ResponseEntity<>( "Product or owner does not exist", HttpStatus.BAD_REQUEST);
+    }
+
 
     private boolean verfiyUser(Integer userId){
 
@@ -44,7 +71,7 @@ public class ProductService {
             var result= restTemplate.getForEntity(uri+userId,Object.class);
             if(result.getStatusCode().value()== 200)
                 return true;
-            return false;
+
         }
         catch(HttpClientErrorException e) {
             responseEntity = new ResponseEntity<>(e.getResponseBodyAsString(), HttpStatus.BAD_REQUEST);
